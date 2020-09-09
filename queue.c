@@ -24,7 +24,8 @@
 */
 queue_t *q_new()
 {
-    queue_t *q =  malloc(sizeof(queue_t));
+    queue_t *q;
+    q = malloc(sizeof(queue_t));
     /* What if malloc returned NULL? */
     if(q == NULL){
       return NULL;
@@ -49,6 +50,8 @@ void q_free(queue_t *q)
         free(q->head);
         q->head = temp;
       }
+    } else{
+      return;
     }
     free(q);
 }
@@ -70,15 +73,13 @@ bool q_insert_head(queue_t *q, char *s)
     }
     newh = malloc(sizeof(list_ele_t));
    if(newh == NULL){
-      free(newh);
       return false;
     }
     /* Don't forget to allocate space for the string and copy it */
     size_t length = strlen(s) + 1;
-    newh->value = (char*)malloc(length*sizeof(char));
+    newh->value = malloc(length*sizeof(char));
     /* What if either call to malloc returns NULL? */
     if(newh->value == NULL){
-      free(newh->value);
       free(newh);
       return false;
     }
@@ -110,18 +111,16 @@ bool q_insert_tail(queue_t *q, char *s)
     list_ele_t *newTail;
     newTail = malloc(sizeof(list_ele_t));
     if(newTail == NULL){
-      free(newTail);
       return false;
     }
     size_t length = strlen(s) + 1;
-    newTail->value = (char*)malloc(length*sizeof(char));
+    newTail->value = malloc(length*sizeof(char));
     if(newTail->value == NULL){
-      free(newTail->value);
       free(newTail);
       return false;
     }
     strcpy(newTail->value, s);
-    if(q->tail == NULL){
+    if(q->size == 0){
       q->head = newTail;
     } else{
       q->tail->next = newTail;
@@ -142,7 +141,7 @@ bool q_insert_tail(queue_t *q, char *s)
 */
 bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
 {
-    if(bufsize <= 0 || q == NULL || q->size == 0){
+    if(bufsize < 1 || q == NULL || q->head == NULL){
       return false;
     }
     if(sp != NULL){
@@ -166,10 +165,10 @@ int q_size(queue_t *q)
 {
     /* You need to write the code for this function */
     /* Remember: It should operate in O(1) time */
-    if(q == NULL || q->head == NULL){
-      return 0;
+    if(q != NULL && q->head != NULL){
+      return q->size;
     }
-    return q->size;
+    return 0;
 }
 
 /*
@@ -182,5 +181,19 @@ int q_size(queue_t *q)
 void q_reverse(queue_t *q)
 {
     /* You need to write the code for this function */
+    if(q != NULL && q->size > 1){
+      list_ele_t *previous = NULL;
+      list_ele_t *current = q->head;
+      list_ele_t *next;
+      q->tail = q->head;
+      while(current != NULL){
+        next = current->next;
+        current->next = previous;
+        previous = current;
+        current = next;
+      }
+      q->head = previous;
+    }
+
 }
 
