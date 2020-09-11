@@ -30,6 +30,7 @@ queue_t *q_new()
     if(q == NULL){
       return NULL;
     } else {
+    // Initialize all references to null and set size as 0
     q->head = NULL;
     q->tail = NULL;
     q->size = 0;
@@ -42,18 +43,19 @@ void q_free(queue_t *q)
 {
     /* How about freeing the list elements and the strings? */
     /* Free queue structure */
+    // Only free q when it is not null
     if(q != NULL){
       list_ele_t *temp;
       while(q->head != NULL){
+        // store the next reference in temp
         temp = q->head->next;
         free(q->head->value);
         free(q->head);
+        // set temp back to head which is the next reference and traverse through
         q->head = temp;
       }
-    } else{
-      return;
+      free(q);
     }
-    free(q);
 }
 
 /*
@@ -71,12 +73,15 @@ bool q_insert_head(queue_t *q, char *s)
     if(q == NULL){
       return false;
     }
+    // Allocate space of appropriate size
     newh = malloc(sizeof(list_ele_t));
    if(newh == NULL){
       return false;
     }
     /* Don't forget to allocate space for the string and copy it */
+    // Add one for the null/0 at the end
     size_t length = strlen(s) + 1;
+    // Allocate the space which for char and the length of string plus the null
     newh->value = malloc(length*sizeof(char));
     /* What if either call to malloc returns NULL? */
     if(newh->value == NULL){
@@ -113,8 +118,10 @@ bool q_insert_tail(queue_t *q, char *s)
     if(newTail == NULL){
       return false;
     }
+    // get string length plus 1 for the null at the end
     size_t length = strlen(s) + 1;
     newTail->value = malloc(length*sizeof(char));
+    // if malloc returns null then free the space for newTail
     if(newTail->value == NULL){
       free(newTail);
       return false;
@@ -141,15 +148,18 @@ bool q_insert_tail(queue_t *q, char *s)
 */
 bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
 {
+    // Edge cases to make sure the buffsize is atleast 2 and q or q->head are not null
     if(bufsize < 1 || q == NULL || q->head == NULL){
       return false;
     }
     if(sp != NULL){
       strncpy(sp, q->head->value, bufsize - 1);
+      // Set the end to the null/0
       sp[bufsize - 1] = (char) 0;
     }
     /* You need to fix up this code. */
     list_ele_t *newHeader = q->head->next;
+    // Free both spaces
     free(q->head->value);
     free(q->head);
     q->head = newHeader;
@@ -188,10 +198,14 @@ void q_reverse(queue_t *q)
       q->tail = q->head;
       while(current != NULL){
         next = current->next;
+        // Changes the reference direction to point the other way
         current->next = previous;
+        // previous holds the prior node
         previous = current;
+        // current goes to the next one
         current = next;
       }
+      // Make sure the head direction set to previous
       q->head = previous;
     }
 
